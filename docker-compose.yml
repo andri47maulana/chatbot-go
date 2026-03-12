@@ -10,10 +10,10 @@
 services:
 
   # ---- WhatsApp Bot (Go) --------------------------------------------------
+  # Image dibangun otomatis via GitHub Actions → ghcr.io
   whatsapp-bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/andri47maulana/chatbot-go:latest
+    pull_policy: always
     restart: unless-stopped
     ports:
       - "${BOT_PORT:-9000}:9000"
