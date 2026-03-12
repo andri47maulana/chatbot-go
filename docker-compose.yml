@@ -81,9 +81,3 @@ volumes:
 networks:
   bot-net:
     driver: bridge
-  waha-sessions:
-  # mysql-data:
-
-networks:
-  bot-net:
-    driver: bridge
