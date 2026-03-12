@@ -4,7 +4,7 @@
 # Prerequisites (provide via Portainer env vars or .env):
 #   OPENAI_API_KEY   – required
 #   DB_HOST / DB_PORT / DB_NAME / DB_USER / DB_PASSWORD
-#   WAHA_API_KEY     – set same value in whatsapp-bot AND waha services
+#   WAHA sudah running di stack waha-full-prod port 3010
 # ============================================================
 
 services:
@@ -19,25 +19,24 @@ services:
       - "${BOT_PORT:-9000}:9000"
     environment:
       APP_PORT: "9000"
-      # Database (point to your existing MySQL or add a db service below)
-      DB_HOST: ${DB_HOST:-mysql}
+      DB_HOST: ${DB_HOST:-127.0.0.1}
       DB_PORT: ${DB_PORT:-3306}
-      DB_DATABASE: ${DB_NAME:-aigri}
+      DB_DATABASE: ${DB_NAME:-ai_lokal_db}
       DB_USERNAME: ${DB_USER:-root}
-      DB_PASSWORD: ${DB_PASSWORD}
+      DB_PASSWORD: ${DB_PASSWORD:-}
       # Redis
       REDIS_ADDR: redis:6379
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       # OpenAI
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
-      # WAHA
-      WAHA_BASE_URL: http://waha:3000
+      # WAHA – pakai container waha_full yang sudah berjalan di port 3010
+      WAHA_BASE_URL: ${WAHA_BASE_URL:-http://host.docker.internal:3010}
       WAHA_API_KEY: ${WAHA_API_KEY:-}
       WAHA_SESSION: ${WAHA_SESSION:-default}
       WAHA_AUTO_RESTART: ${WAHA_AUTO_RESTART:-true}
-      # RAG Backend (existing Python service)
-      RAG_BASE_URL: ${RAG_BASE_URL:-http://host.docker.internal:5002}
+      # RAG Backend
+      RAG_BASE_URL: ${RAG_BASE_URL:-http://host.docker.internal:5001}
       RAG_API_KEY: ${RAG_API_KEY:-1245}
       # Bot identity
       BOT_PHONE_NUMBER: ${BOT_PHONE_NUMBER:-}
@@ -48,8 +47,6 @@ services:
     depends_on:
       redis:
         condition: service_healthy
-      waha:
-        condition: service_started
     networks:
       - bot-net
     healthcheck:
@@ -58,26 +55,6 @@ services:
       timeout: 5s
       retries: 3
       start_period: 10s
-
-  # ---- WAHA (WhatsApp HTTP API) -------------------------------------------
-  # Free tier: devlikeapro/waha:chrome (WEBJS engine)
-  # Paid tier: devlikeapro/waha-plus:chrome (NOWEB + multi-engine, needs login)
-  waha:
-    image: devlikeapro/waha:chrome
-    restart: unless-stopped
-    ports:
-      - "${WAHA_PORT:-3000}:3000"
-    volumes:
-      - waha-media:/app/.media
-      - waha-sessions:/app/.sessions
-    environment:
-      WHATSAPP_API_KEY: ${WAHA_API_KEY:-}
-      WHATSAPP_HOOK_URL: http://whatsapp-bot:9000/webhook
-      WHATSAPP_HOOK_EVENTS: "message"
-      # Uncomment to restrict webhook to specific session:
-      # WHATSAPP_DEFAULT_ENGINE: NOWEB
-    networks:
-      - bot-net
 
   # ---- Redis (session / dedup cache) --------------------------------------
   redis:
@@ -98,26 +75,12 @@ services:
       timeout: 3s
       retries: 5
 
-# ---- OPTIONAL: MySQL (comment out if using external DB) -------------------
-# mysql:
-#   image: mysql:8.0
-#   restart: unless-stopped
-#   environment:
-#     MYSQL_ROOT_PASSWORD: ${DB_PASSWORD}
-#     MYSQL_DATABASE: ${DB_NAME:-aigri}
-#   volumes:
-#     - mysql-data:/var/lib/mysql
-#   networks:
-#     - bot-net
-#   healthcheck:
-#     test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-#     interval: 10s
-#     timeout: 3s
-#     retries: 5
-
 volumes:
   redis-data:
-  waha-media:
+
+networks:
+  bot-net:
+    driver: bridge
   waha-sessions:
   # mysql-data:
 
