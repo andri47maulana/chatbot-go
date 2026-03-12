@@ -1,0 +1,26 @@
+# Exclude version control
+.git/
+.gitignore
+
+# Exclude local env files with secrets
+.env
+*.env
+
+# Exclude editor / OS artifacts
+.vscode/
+.idea/
+*.DS_Store
+Thumbs.db
+
+# Exclude test scripts and local docs
+test_*.php
+*_test.php
+*.md
+
+# Exclude build output that should not be re-baked in
+server
+whatsapp-bot
+*.exe
+
+# Exclude Go test cache
+vendor/

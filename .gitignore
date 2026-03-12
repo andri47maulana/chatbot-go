@@ -1,0 +1,37 @@
+# ===== Secrets & local config =====
+.env
+*.env
+!.env.example
+
+# ===== Build outputs =====
+/server
+/whatsapp-bot
+*.exe
+*.dll
+*.so
+*.dylib
+
+# ===== Go module cache =====
+vendor/
+
+# ===== Test binaries =====
+*.test
+*.out
+
+# ===== OS artifacts =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Editors =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== Logs =====
+*.log
